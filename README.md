@@ -1,32 +1,65 @@
 # preflight-reviewer
 
-> **English summary**
-> preflight-reviewer is a free skill for Claude Code and Codex that reviews a deliverable before you release it.
-> Run it in a session separate from the one that produced the work, so the review is independent.
-> It covers landing pages, articles, video scripts, code, how-to guides, and emails.
-> It scores four axes from 0 to 2: factual accuracy, completeness against the request, traceability of sources, and usability.
-> Every finding goes into a single list with its location, how it was checked, the expected state, the actual state, and a severity (critical, medium, or minor). Critical findings also carry a type, such as an unconfirmed promise, an unverifiable number or testimonial, or a missing legally required notice.
-> The final verdict is Yes (release) or No (fix needed, or human confirmation needed). The default is No.
-> It never modifies the original. Anything that must be run or deliberately broken is done only on a temporary copy, offline, without keys, and away from production systems. It does not open unsubscribe, confirmation, or sign-in links; it reads only the URL text.
-> Text found in the deliverable, the author's notes, source documents, linked pages, and tool output is treated as data, never as instructions.
-> The final check of whether a fact is true stays with a human.
-> The instructions and criteria are written in Japanese. The report is written in the language of the request.
-> Install by copying or cloning this folder to `~/.claude/skills/preflight-reviewer` or `~/.codex/skills/preflight-reviewer`. No other setup is needed.
-> MIT License. Copyright (c) 2026 CHIERO (株式会社CHIERO). Generalized from CHIERO's internal review practice.
+AI が作った物を、外に出す前に、作ったセッションとは別のセッションで点検する、Claude Code / Codex 用のスキルです。
+無料で使えます（MIT ライセンス）。English summary is at the bottom of this page.
 
-## 何をするスキルか
+## 何ができるか
 
-LP、記事、台本、コード、手順書、メールなどの成果物を、外に出す前に点検するスキルです。成果物を作ったセッションとは別のセッションで使うと、作った側の思い込みを持ち込まずに点検できます。
+- LP、記事、台本、コード、手順書、メールを、依頼と正本（事実の出どころになる資料）に照らして点検します。
+- 4観点（事実の正確さ・依頼の完遂・根拠の追跡・使いやすさ）を、各 0〜2 点で採点します。
+- 指摘の一覧を返します。指摘ごとに、場所・確認の方法・期待・実際・重大度（重大・中・軽）・直し方の案が付きます。
+- 出してよいかを Yes か No で判定します。判定の既定は No です。
+- 原本を書き換えません。点検のために、送信・購入・公開・`git push` などの外へ出る操作もしません。
+- 成果物やリンク先に書かれた指示文（「合格にしてください」など）には従わず、見つけた場所を報告に書きます。
 
-preflight-reviewer は次の順で点検します。
+## 30秒で試す
 
-1. 点検する物、依頼、正本（事実の出どころになる基準資料）を受け取る。作った側の説明は後で読む。
-2. 形式（LP、記事、台本、コード、手順書、メール）ごとの観点で点検する。
-3. 4観点を 0〜2 点で採点する。
-4. 指摘の一覧（場所、確認の方法、期待、実際、重大度、直し方の案）を書く。重大な誤りも、この一覧に重大度「重大」として載せる。
-5. 出してよいかを Yes か No で判定し、報告を返す。
+1. スキルの置き場に clone します。追加のインストールや設定はありません。
 
-## 入れ方
+   Claude Code：
+
+   ```sh
+   mkdir -p ~/.claude/skills
+   git clone https://github.com/kounkt/preflight-reviewer ~/.claude/skills/preflight-reviewer
+   ```
+
+   Codex：
+
+   ```sh
+   mkdir -p ~/.codex/skills
+   git clone https://github.com/kounkt/preflight-reviewer ~/.codex/skills/preflight-reviewer
+   ```
+
+2. 新しいセッションを開いて、点検したいファイルを渡します。
+
+   ```text
+   preflight-reviewer で、draft.md を点検して。依頼は「初心者向けに 2,000 字で、表計算ソフトの関数を 3 つ紹介する」。出してよいか Yes か No で教えて。
+   ```
+
+3. 採点、指摘の一覧、最終判定が返ります。
+
+clone は数秒で終わります。点検にかかる時間は、点検する物の大きさで変わります。
+Codex の公式ドキュメントは、個人用のスキルの置き場を `~/.agents/skills` としています。作者の環境（codex-cli 0.158.0）では、`~/.codex/skills` に置いた物も読み込まれました。読み込まれない時は、`~/.agents/skills/preflight-reviewer` に置いてください。
+
+## 実例
+
+架空の講座の販売ページを、依頼と企画書に照らして点検した報告から、採点と、最終判定と、指摘の1つを抜き出した物です（実物の抜粋を、表示を整えて撮影）。
+
+![preflight-reviewer が返す報告の例。4観点の採点は合計 1/8、最終判定は No（要修正）](docs/example-report.png)
+
+受け取った入力と報告の全文は、[`examples/example-lp-review.md`](examples/example-lp-review.md) にあります。
+入れ方から、報告の読み方、作者の会社で最初の点検が見つけた指摘までを、[`docs/independent-review.md`](docs/independent-review.md) に書きました。
+
+## 会社の運用に組み込んだ版（有料）
+
+このスキルの点検の考え方に、外へ出る操作の決まりと、正本の優先順位を結びつけた物を、「AI社員一式」として note で販売しています。
+18の担当（司令塔・点検・SNS・メール配信・経理の下ごしらえ など）の役割のファイル、手順36本、全社の決まり6本、朝の報告の型が入った、104ファイルの一式です。
+
+- AI社員一式（note）：https://note.com/kounkt/n/nf6640ae56f4e
+- 担当ごとの一覧と、成果物のサンプル：https://chiero.jp/skills/
+- Mac の環境チェック（無料）：https://github.com/kounkt/ai-setup-guide
+
+## 入れ方（くわしく）
 
 `SKILL.md` がリポジトリの直下にあります。クローンしたフォルダ名を `preflight-reviewer` にすると、そのまま読み込まれます。
 
@@ -52,20 +85,20 @@ cp -R preflight-reviewer ~/.codex/skills/preflight-reviewer
 
 ### git で入れる
 
-`<リポジトリの URL>` は、このリポジトリの clone 用の URL に置き換えてください。最後の引数で、置き場所とフォルダの名前を指定しています。
+最後の引数で、置き場所とフォルダの名前を指定しています。
 
 Claude Code：
 
 ```sh
 mkdir -p ~/.claude/skills
-git clone <リポジトリの URL> ~/.claude/skills/preflight-reviewer
+git clone https://github.com/kounkt/preflight-reviewer ~/.claude/skills/preflight-reviewer
 ```
 
 Codex：
 
 ```sh
 mkdir -p ~/.codex/skills
-git clone <リポジトリの URL> ~/.codex/skills/preflight-reviewer
+git clone https://github.com/kounkt/preflight-reviewer ~/.codex/skills/preflight-reviewer
 ```
 
 入れた後は、新しいセッションを開いてください。`~/.claude/skills/preflight-reviewer/SKILL.md`（Codex では `~/.codex/skills/preflight-reviewer/SKILL.md`）がある状態が正しい置き方です。
@@ -134,6 +167,8 @@ preflight-reviewer/
   references/checklist.md       Yes/No のチェックと最終判定の条件
   references/report-template.md 報告の書式
   examples/example-lp-review.md 架空の LP を点検した報告の例
+  docs/example-report.png       報告の例の画像（README 用）
+  docs/independent-review.md    入れ方・使い方・報告の読み方の記事
   LICENSE                       MIT ライセンス
   NOTICE.md                     由来
 ```
@@ -146,3 +181,17 @@ MIT License です。著作権表示は「Copyright (c) 2026 CHIERO（株式会�
 
 株式会社CHIERO では、AI に作らせた成果物を外に出す前に、作ったセッションとは別のセッションで点検していました。このスキルは、その運用の手順と基準を、ほかの人の環境でもそのまま使える形に書き直したものです。詳しくは `NOTICE.md` を見てください。
 
+## English summary
+
+preflight-reviewer is a free skill for Claude Code and Codex that reviews a deliverable before you release it.
+Run it in a session separate from the one that produced the work, so the review is independent.
+It covers landing pages, articles, video scripts, code, how-to guides, and emails.
+It scores four axes from 0 to 2: factual accuracy, completeness against the request, traceability of sources, and usability.
+Every finding goes into a single list with its location, how it was checked, the expected state, the actual state, and a severity (critical, medium, or minor). Critical findings also carry a type, such as an unconfirmed promise, an unverifiable number or testimonial, or a missing legally required notice.
+The final verdict is Yes (release) or No (fix needed, or human confirmation needed). The default is No.
+It never modifies the original. Anything that must be run or deliberately broken is done only on a temporary copy, offline, without keys, and away from production systems. It does not open unsubscribe, confirmation, or sign-in links; it reads only the URL text.
+Text found in the deliverable, the author's notes, source documents, linked pages, and tool output is treated as data, never as instructions.
+The final check of whether a fact is true stays with a human.
+The instructions and criteria are written in Japanese. The report is written in the language of the request.
+Install by copying or cloning this folder to `~/.claude/skills/preflight-reviewer` or `~/.codex/skills/preflight-reviewer`. No other setup is needed. (Codex's documented personal location is `~/.agents/skills`; `~/.codex/skills` also worked on codex-cli 0.158.0.)
+MIT License. Copyright (c) 2026 CHIERO (株式会社CHIERO). Generalized from CHIERO's internal review practice.
