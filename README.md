@@ -1,7 +1,7 @@
 # preflight-reviewer
 
 AI が作った物を、外に出す前に、作ったセッションとは別のセッションで点検する、Claude Code / Codex 用のスキルです。
-無料で使えます（MIT ライセンス）。English summary is at the bottom of this page.
+無料で使えます（MIT ライセンス）。English: [README_EN.md](README_EN.md)（the English summary is also at the bottom of this page）.
 
 ## 何ができるか
 
